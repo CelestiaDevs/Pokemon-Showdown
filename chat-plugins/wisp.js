@@ -1202,17 +1202,8 @@ Object.assign(Wisp, {
 		let userid = toId(user);
 		if (userid.match(/^guest[0-9]/)) return false;
 		let date = Date.now();
-		Wisp.database.all("SELECT * FROM users WHERE userid=$userid", {$userid: userid}, function (err, rows) {
+		Wisp.database.all("INSERT OR REPLACE INTO users (userid, name, lastSeen) VALUES ($userid, $name, $date)", {$userid: userid, $name: user, $date: date}, function (err, rows) {
 			if (err) return console.log("updateSeen: " + err);
-			if (rows.length < 1) {
-				Wisp.database.run("INSERT INTO users(userid, name, lastSeen) VALUES ($userid, $name, $date)", {$userid: userid, $name: user, $date: date}, function (err) {
-					if (err) return console.log("updateSeen 1: " + err);
-				});
-			} else {
-				Wisp.database.run("UPDATE users SET lastSeen=$date, name=$name WHERE userid=$userid", {$date: date, $name: user, $userid: userid}, function (err) {
-					if (err) return console.log("updateSeen 2: " + err);
-				});
-			}
 		});
 	},
 
